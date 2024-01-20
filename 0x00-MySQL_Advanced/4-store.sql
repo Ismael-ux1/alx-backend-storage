@@ -17,8 +17,8 @@ BEGIN
 	-- Decrease the quantity by the amount specified in the,
 	-- newly inserted row in the 'orders' table
         UPDATE items
-	SET quantity = quantity - NEW.quantity
-	WHERE item_id = NEW.item_id;
+	SET quantity = quantity - NEW.number
+	WHERE name = NEW.item_name;
 END; //
 
 -- Reset the delimeter back to the default semicolon.
