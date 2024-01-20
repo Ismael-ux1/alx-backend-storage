@@ -5,7 +5,7 @@
 --  Select the 'origin' and count the number of 'fans' for each 'origin'
 SELECT origin, COUNT(fans) AS nb_fans
 
--- From the 'bands' table
+-- From the 'metal_bands' table
 FROM metal_bands
 
 -- Group the result by 'origin'
