@@ -2,8 +2,8 @@
 
 -- This script can be executed on any database.
 
---  Select the 'origin' and count the number of 'fans' for each 'origin'
-SELECT origin, COUNT(fans) AS nb_fans
+--  Select the 'origin' and sum the number of 'fans' for each 'origin'
+SELECT origin, SUM(fans) AS nb_fans
 
 -- From the 'metal_bands' table
 FROM metal_bands
