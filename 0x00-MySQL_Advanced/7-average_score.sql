@@ -5,7 +5,7 @@ BEGIN
     DECLARE avg_score DECIMAL(5,2);
 
     -- Compute the average score
-    SELECT AVG(score) INTO avg_score
+    SELECT INFULL (AVG(score), 0) INTO avg_score
     FROM corrections
     WHERE user_id = user_id;
 
