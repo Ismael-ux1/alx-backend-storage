@@ -30,7 +30,7 @@ class Cache:
 
     def get_str(self, key: str):
         # Shortcut method to get data as a decoded UTF-8 string
-        return self.get(key, fn=lamda d: d.decode("utf-8"))
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
 
     def get_int(self, key: str):
         # Shortcut method to get data as an integer
