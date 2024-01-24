@@ -2,6 +2,7 @@
 """ Writing strings to Redis """
 import redis
 import uuid
+import functools
 from typing import Union
 
 
@@ -11,6 +12,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         # Generate a random key using uuid
         random_key = str(uuid.uuid4())
@@ -35,3 +37,21 @@ class Cache:
     def get_int(self, key: str):
         # Shortcut method to get data as an integer
         return self.get(key, fn=int)
+
+    def count_calls(method):
+        # Use functools.wraps to preserve the original function's metadata
+        @functools.wraps(method)
+        def wrapper(self, *args, **kwargs):
+            # Use a qualified name of the method as the key
+            key = method.__qualname__
+
+            # Increment count in Redis
+            count = self._redis_incr(key)
+
+            # Print or log the count
+            print(f"{key} called {count} times.")
+
+            # Call the original method and return its result
+            return method(self, *args, **kwargs)
+
+        return wrapper
