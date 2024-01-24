@@ -12,7 +12,6 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         # Generate a random key using uuid
         random_key = str(uuid.uuid4())
@@ -39,19 +38,15 @@ class Cache:
         return self.get(key, fn=int)
 
     def count_calls(method):
-        # Use functools.wraps to preserve the original function's metadata
-        @functools.wraps(method)
-        def wrapper(self, *args, **kwargs):
-            # Use a qualified name of the method as the key
-            key = method.__qualname__
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        # Use qualified name of the method as the key
+        key = method.__qualname__
 
-            # Increment count in Redis
-            count = self._redis_incr(key)
+        # Increment count in Redis
+        count = self._redis.incr(key)
 
-            # Print or log the count
-            print(f"{key} called {count} times.")
+        # Call the original method and return its result
+        return method(self, *args, **kwargs)
 
-            # Call the original method and return its result
-            return method(self, *args, **kwargs)
-
-        return wrapper
+    return wrapper
