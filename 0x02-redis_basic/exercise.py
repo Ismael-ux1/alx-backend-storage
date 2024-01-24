@@ -20,7 +20,7 @@ class Cache:
             key = method.__qualname__
 
             # Increment count in Redis
-            count = self._redis.incr(key)
+            self._redis.incr(key)
 
             # Call the original method and return its result
             return method(self, *args, **kwargs)
