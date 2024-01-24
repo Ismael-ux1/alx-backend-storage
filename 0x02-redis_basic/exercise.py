@@ -6,12 +6,30 @@ import functools
 from typing import Union
 
 
+def count_calls(method):
+    # Use functools.wraps to preserve the original function's metadata
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        # Use qualified name of the method as the key
+        key = method.__qualname__
+
+        # Increment count in Redis
+        count = self._redis.incr(key)
+
+        # Call the original method and return its result
+        return method(self, *args, **kwargs)
+
+    # Return the decorated function
+    return wrapper
+
+
 class Cache:
     def __init__(self):
         # Create an instance of the Redis client and fluch the Redis database
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         # Generate a random key using uuid
         random_key = str(uuid.uuid4())
@@ -36,17 +54,3 @@ class Cache:
     def get_int(self, key: str):
         # Shortcut method to get data as an integer
         return self.get(key, fn=int)
-
-    def count_calls(method):
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        # Use qualified name of the method as the key
-        key = method.__qualname__
-
-        # Increment count in Redis
-        count = self._redis.incr(key)
-
-        # Call the original method and return its result
-        return method(self, *args, **kwargs)
-
-    return wrapper
