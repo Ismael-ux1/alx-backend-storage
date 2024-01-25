@@ -1,77 +1,13 @@
-#!/usr/bin/env python3
-""" Writing strings to Redis """
 import redis
 import uuid
-import functools
 from typing import Union
-
 
 class Cache:
     def __init__(self):
-        # Create an instance of the Redis client and fluch the Redis database
+        # Create an instance of the Redis client and flush the Redis database
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    def call_history(method):
-        # Define the decorator call_history that takes a method as an argument
-
-        # Use 'functools.wraps' to preserve the original function's
-        # metadata when it's decorated
-        @functools.wraps(method)
-        def wrapper(self, *args, **kwargs):
-            # Use the __qualname__ attribute as the key
-            key_inputs = method.__qualname__ + ":inputs"
-            key_outputs = method.__qualname__ + ":outputs"
-
-            # Normalize the arguments and use RPUSH to append them
-            # to the inputs list in Redis
-            self._redis.rpush(key_inputs, str(args))
-
-            # Call the original method and get its output
-            output = method(self, *args, **kwargs)
-
-            # Use RPUSH to append the output to the outputs list in Redis
-            self._redis.rpush(key_outputs, str(output))
-
-            # Return the output of the original method
-            return output
-
-        return wrapper
-
-    def count_calls(method):
-        # Use functools.wraps to preserve the original function's metadata
-        @functools.wraps(method)
-        def wrapper(self, *args, **kwargs):
-            # Use qualified name of the method as the key
-            key = method.__qualname__
-
-            # Increment count in Redis
-            self._redis.incr(key)
-
-            # Call the original method and return its result
-            return method(self, *args, **kwargs)
-        # Return the decorated function
-        return wrapper
-
-    def replay(method: Callable, cache_instance: 'Cache') -> List[str]:
-        # Use the __qualname__ attribute as the key
-        key_inputs = f"{method.__qualname__}:inputs"
-        key_outputs = f"{method.__qualname__}:outputs"
-
-        # Get the history of inputs and outputs from Redis
-        inputs = cache_instance._redis.lrange(key_inputs, 0, -1)
-        outputs = cache_instance._redis.lrange(key_outputs, 0, -1)
-
-        # Print or process the history
-        history = []
-        for i, (input_str, output_str) in enumerate(zip(inputs, outputs)):
-            history.append(f"Call {i + 1} - Input: {input_str},
-                           Output: {output_str}")
-
-    return history
-
-    @call_history
-    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         # Generate a random key using uuid
         random_key = str(uuid.uuid4())
@@ -86,7 +22,7 @@ class Cache:
         # Retrieve data from Redis associated with the key
         data = self._redis.get(key)
 
-        # If data exists, apply the conversion function and return
+        # If data exists, apply the conversion function (if provided) and return
         return fn(data) if fn is not None else data
 
     def get_str(self, key: str):
