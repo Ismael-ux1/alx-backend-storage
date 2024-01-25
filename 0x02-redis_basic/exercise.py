@@ -53,6 +53,19 @@ class Cache:
         # Return the decorated function
         return wrapper
 
+    def replay(self, method):
+        # Use the __qualname__ attribute as the key
+        key_inputs = method.__qualname__ + ":inputs"
+        key_outputs = method.__qualname__ + ":outputs"
+
+        # Get the history of inputs and outputs from Redis
+        inputs = self._redis.lrange(key_inputs, 0, -1)
+        outputs = self._redis.lrange(key_outputs, 0, -1)
+
+        # Print the history of calls to the method
+        for i, o in zip(inputs, outputs):
+            print(f"{method.__qualname__}(*{i}) -> {o}")
+
     @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
