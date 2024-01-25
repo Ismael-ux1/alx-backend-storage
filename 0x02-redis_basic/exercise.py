@@ -68,3 +68,14 @@ class Cache:
     def get_int(self, key: str):
         # Shortcut method to get data as an integer
         return self.get(key, fn=int)
+
+    def replay(self, method: Callable):
+        """Method to display the history of calls of a particular method"""
+        # Retrieve the input and output history from Redis
+        inputs = self._redis.lrange(f"{method.__qualname__}:inputs", 0, -1)
+        outputs = self._redis.lrange(f"{method.__qualname__}:outputs", 0, -1)
+
+        # Print the history of calls
+        print(f"{method.__qualname__} was called {len(inputs)} times:")
+        for i, (input_, output) in enumerate(zip(inputs, outputs)):
+            print(f"{method.__qualname__}(*{input_}) -> {output}")
