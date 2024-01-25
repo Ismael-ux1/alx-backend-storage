@@ -2,6 +2,7 @@ import redis
 import uuid
 from typing import Union
 
+
 class Cache:
     def __init__(self):
         # Create an instance of the Redis client and flush the Redis database
@@ -22,7 +23,7 @@ class Cache:
         # Retrieve data from Redis associated with the key
         data = self._redis.get(key)
 
-        # If data exists, apply the conversion function (if provided) and return
+        # If data exists, apply the conversion function if provided and return
         return fn(data) if fn is not None else data
 
     def get_str(self, key: str):
