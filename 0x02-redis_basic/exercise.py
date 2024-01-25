@@ -13,6 +13,10 @@ class Cache:
         self._redis.flushdb()
 
     def call_history(method):
+        # Define the decorator call_history that takes a method as an argument
+
+        # Use 'functools.wraps' to preserve the original function's
+        # metadata when it's decorated
         @functools.wraps(method)
         def wrapper(self, *args, **kwargs):
             # Use the __qualname__ attribute as the key
