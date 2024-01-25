@@ -12,6 +12,28 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    def call_history(method):
+        @functools.wraps(method)
+        def wrapper(self, *args, **kwargs):
+            # Use the __qualname__ attribute as the key
+            key_inputs = method.__qualname__ + ":inputs"
+            key_outputs = method.__qualname__ + ":outputs"
+
+            # Normalize the arguments and use RPUSH to append them
+            # to the inputs list in Redis
+            self._redis.rpush(key_inputs, str(args))
+
+            # Call the original method and get its output
+            output = method(self, *args, **kwargs)
+
+            # Use RPUSH to append the output to the outputs list in Redis
+            self._redis.rpush(key_outputs, str(output))
+
+            # Return the output of the original method
+            return output
+
+        return wrapper
+
     def count_calls(method):
         # Use functools.wraps to preserve the original function's metadata
         @functools.wraps(method)
@@ -27,6 +49,7 @@ class Cache:
         # Return the decorated function
         return wrapper
 
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         # Generate a random key using uuid
