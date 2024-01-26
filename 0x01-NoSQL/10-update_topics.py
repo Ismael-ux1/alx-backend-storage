@@ -17,4 +17,4 @@ def update_topics(mongo_collection, name, topics):
     new_value = {"$set": {"topics": topics}}
 
     # Update the document in the MongoDB
-    mongo_collection.update_one({"name": name}, new_value)
+    mongo_collection.update_many({"name": name}, new_value)
