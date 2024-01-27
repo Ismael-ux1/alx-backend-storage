@@ -31,7 +31,7 @@ print(f"{total_logs} logs")
 """ Print the coun of each HTTP method type """
 print("Methods:")
 for method, count in method_counts.items():
-    print(f"\tmethod {method}: {count}")
+    print(f"    method {method}: {count}")
 
 """ Print the count of 'status check' documents """
 print(f"{status_check_count} status check")
